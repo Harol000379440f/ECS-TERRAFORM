@@ -1,10 +1,10 @@
 name: Destroy Infrastructure
 
 on:
-  workflow_dispatch  # Permite ejecutar el pipeline manualmente desde GitHub Actions
+  workflow_dispatch:  # Permite ejecutar manualmente el workflow desde la interfaz de Actions.
 
 permissions:
-  contents: read  # Permisos mínimos
+  contents: read  # Permisos mínimos para acceder al código.
 
 jobs:
   terraform-destroy:
@@ -33,6 +33,6 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
-      # 5. Ejecutar Terraform Destroywerwrw
+      # 5. Ejecutar Terraform Destroy
       - name: Terraform Destroy
         run: terraform destroy -auto-approve
