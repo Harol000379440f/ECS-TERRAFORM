@@ -33,6 +33,6 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
-      # 5. Ejecutar Terraform Destroy
+      # 5. Ejecutar Terraform Destroywerwrw
       - name: Terraform Destroy
         run: terraform destroy -auto-approve
