@@ -35,4 +35,4 @@ jobs:
 
       # 5. Ejecutar Terraform Destroy
       - name: Terraform Destroy
-        run: terraform destroy -auto-approve
+        run: terraform destroy -auto-approve
