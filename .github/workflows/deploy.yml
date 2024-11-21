@@ -26,8 +26,10 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
       - name: Install Checkov
         run: pip install checkov
+      #- name: Checkov Scan
+      #  run: checkov echo pwd #--directory 
       - name: Checkov Scan
-        run: checkov --directory / 
+        run: checkov --directory && echo pwd
       - name: Terraform Init
         run: terraform init
       - name: Terraform Validate
