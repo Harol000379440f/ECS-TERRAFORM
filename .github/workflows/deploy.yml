@@ -5,16 +5,17 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read  # Establece permisos mínimos
+
 jobs:
   terraform:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout del código
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # 2. Configurar AWS Credentials
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v3
         with:
@@ -22,24 +23,19 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      # 3. Instalar Checkov
       - name: Install Checkov
         run: pip install checkov
 
-      # 4. Ejecutar Checkov
       - name: Run Checkov
         run: checkov -d .
 
-      # 5. Instalar Terraform
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: 1.5.0
 
-      # 6. Inicializar Terraform
       - name: Terraform Init
         run: terraform init
 
-      # 7. Aplicar Terraform
       - name: Terraform Apply
         run: terraform apply -auto-approve
