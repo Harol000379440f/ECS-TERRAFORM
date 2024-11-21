@@ -1,4 +1,4 @@
-name: Deploy and Destroy Terraform Infrastructure
+name: Deploy and Destroy Terraform Infrastructure with Checkov
 
 on:
   push:
@@ -16,22 +16,37 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - uses: hashicorp/setup-terraform@v2
+        with:
+          fetch-depth: 2  # Opcional: Para optimizar descargas
+      - name: Checkov Scan
+        uses: checkov/checkov-action@v1
+        with:
+          framework: terraform
+          directory: ./
+          # Otras opciones de configuración de Checkov (opcional)
+          # exit-code: 1  # Salir con código 1 si se encuentran hallazgos
+          # skip:  # Lista de checks a saltar
+          # ...
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: 1.5.0
-      - uses: aws-actions/configure-aws-credentials@v2
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
-      - name: Terraform Init
+      - name: Initialize Terraform
         run: terraform init
-      - name: Terraform Validate
+      - name: Validate Terraform Configuration
         run: terraform validate
-      - name: Terraform Plan
+      - name: Generate Terraform Plan
         run: terraform plan
-      - name: Terraform Apply
+      - name: Apply Terraform Changes
         run: terraform apply -auto-approve
-      - name: Terraform Destroy
+      - name: Destroy Terraform Infrastructure
         if: github.event_name == 'workflow_dispatch'
-        run: terraform destroy -auto-approve
+        run: |
+          echo "Se va a destruir la infraestructura. Confirma esta acción."
+          terraform destroy -auto-approve
