@@ -28,7 +28,7 @@ jobs:
         run: pip install checkov
       - name: Checkov Scan
         run: |
-          cd /home/runner/work/_temp/79988249-b5ca-4d20-9b60-c6784317dad2
+          cd ./
           echo "Checkov scan completed in directory: $(pwd)"
       - name: Terraform Init
         run: terraform init
