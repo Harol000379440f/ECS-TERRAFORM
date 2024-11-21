@@ -1,0 +1,56 @@
+name: Deploy Terraform Infrastructure
+
+on:
+  push:
+    branches:
+      - main  # Cambia esto según tu rama principal
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  terraform:
+    name: Deploy with Terraform
+    runs-on: ubuntu-latest
+
+    env:
+      TF_LOG: DEBUG  # Habilita logs detallados de Terraform
+      TF_INPUT: false
+
+    steps:
+      # 1. Checkout el código
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # 2. Instalar Terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.0  # Cambia según la versión que uses
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      # 3. Configurar AWS CLI
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-2
+
+      # 4. Inicializar Terraform
+      - name: Terraform Init
+        run: terraform init
+
+      # 5. Validar Terraform
+      - name: Terraform Validate
+        run: terraform validate
+
+      # 6. Plan de Terraform
+      - name: Terraform Plan
+        run: terraform plan
+
+      # 7. Aplicar Terraform (Desplegar)
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+        env:
+          TF_VAR_region: us-east-2
