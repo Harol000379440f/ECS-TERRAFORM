@@ -1,4 +1,4 @@
-name: Despliegue y Destrucción de Infraestructura con Terraform y Checkov
+name: Deploy and Destroy Terraform Infrastructure
 
 on:
   push:
@@ -16,37 +16,24 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-        with:
-          fetch-depth: 2  # Opcional: Para optimizar descargas
-      - name: Análisis de Seguridad con Checkov
-        uses: checkov/checkov-action@v1
-        with:
-          framework: terraform
-          directory: ./
-          # Otras opciones de configuración de Checkov (opcional)
-          # exit-code: 1  # Salir con código 1 si se encuentran hallazgos
-          # skip:  # Lista de checks a saltar
-          # ...
-      - name: Configuración de Terraform
-        uses: hashicorp/setup-terraform@v2
+      - uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: 1.5.0
-      - name: Configuración de Credenciales AWS
-        uses: aws-actions/configure-aws-credentials@v2
+      - uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
-      - name: Inicialización de Terraform
+      - name: Checkov Scan
+        run: checkov --directory terraform
+      - name: Terraform Init
         run: terraform init
-      - name: Validación de Configuración de Terraform
+      - name: Terraform Validate
         run: terraform validate
-      - name: Generación del Plan de Terraform
+      - name: Terraform Plan
         run: terraform plan
-      - name: Aplicación de Cambios de Terraform
+      - name: Terraform Apply
         run: terraform apply -auto-approve
-      - name: Destrucción de la Infraestructura de Terraform
+      - name: Terraform Destroy
         if: github.event_name == 'workflow_dispatch'
-        run: |
-          echo "Se va a destruir la infraestructura. Confirma esta acción."
-          terraform destroy -auto-approve
+        run: terraform destroy -auto-approve
