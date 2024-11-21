@@ -1,6 +1,6 @@
 name: Deploy and Destroy Terraform Infrastructure
 
-on:
+on: #evento
   push:
     branches: [main]
   pull_request:
