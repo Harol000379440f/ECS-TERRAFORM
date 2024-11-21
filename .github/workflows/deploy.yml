@@ -1,21 +1,21 @@
-name: Destroy Infrastructure
+name: Deploy Infrastructure
 
 on:
-  workflow_dispatch:  # Permite ejecutar manualmente el workflow desde la interfaz de Actions.
+  push:
+    branches:
+      - main
 
 permissions:
-  contents: read  # Permisos mínimos para acceder al código.
+  contents: read  # Establece permisos mínimos
 
 jobs:
-  terraform-destroy:
+  terraform:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout del código
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # 2. Configurar AWS Credentials
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v3
         with:
@@ -23,16 +23,19 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      # 3. Instalar Terraform
+      - name: Install Checkov
+        run: pip install checkov
+
+      - name: Run Checkov
+        run: checkov -d . || true
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: 1.5.0
 
-      # 4. Inicializar Terraform
       - name: Terraform Init
         run: terraform init
 
-      # 5. Ejecutar Terraform Destroy
-      - name: Terraform Destroy
-        run: terraform destroy -auto-approve
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
